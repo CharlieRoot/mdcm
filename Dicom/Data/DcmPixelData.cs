@@ -52,11 +52,13 @@ namespace Dicom.Data {
 		private double _rescaleIntercept;
 		private bool _hasPixelPadding;
 		private int _pixelPaddingValue;
+		private bool _emptyPixelData = false;
 		#endregion
 
 		#region Public Contructors
 		public DcmPixelData(DicomTransferSyntax ts) {
 			_transferSyntax = ts;
+			_emptyPixelData = true;
 			CreatePixelDataItem();
 		}
 
@@ -78,6 +80,7 @@ namespace Dicom.Data {
 			_rescaleSlope = old.RescaleSlope;
 			_rescaleIntercept = old.RescaleIntercept;
 			_pixelPaddingValue = old.PixelPaddingValue;
+			_emptyPixelData = true;
 			CreatePixelDataItem();
 		}
 
@@ -255,6 +258,7 @@ namespace Dicom.Data {
 
 		public double RescaleSlope {
 			get { return _rescaleSlope; }
+			set { _rescaleSlope = value; }
 		}
 
 		public double RescaleIntercept {
@@ -577,6 +581,10 @@ namespace Dicom.Data {
 
 		#region Frame Creation Methods
 		public void AddFrame(byte[] data) {
+			if (_emptyPixelData) {
+				CreatePixelDataItem();
+				_emptyPixelData = false;
+			}
 			_frames++;
 			if (IsFragmented) {
 				DcmFragmentSequence sequence = PixelDataSequence;
@@ -701,7 +709,7 @@ namespace Dicom.Data {
 				_pixelDataItem = new DcmFragmentSequence(DicomTags.PixelData, DicomVR.OB);
 			}
 			else {
-				if (!TransferSyntax.IsExplicitVR || (_bitsAllocated > 8 && _bitsAllocated <= 16))
+				if (TransferSyntax.IsExplicitVR && (_bitsAllocated > 8 && _bitsAllocated <= 16))
 					_pixelDataItem = new DcmOtherWord(DicomTags.PixelData);
 				else
 					_pixelDataItem = new DcmOtherByte(DicomTags.PixelData);

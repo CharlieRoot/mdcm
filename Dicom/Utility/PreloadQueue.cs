@@ -64,10 +64,10 @@ namespace Dicom.Utility {
 				item = _queue.Dequeue();				
 			}
 			if (!item.IsLoaded) {
-				lock (item) {
-					if (!item.IsLoaded)
-						item.Load(_state);
-				}
+				Monitor.Enter(item);
+				if (!item.IsLoaded)
+					item.Load(_state);
+				Monitor.Exit(item);
 			}
 			return item;
 		}
@@ -153,11 +153,10 @@ namespace Dicom.Utility {
 				Titem item = (Titem)state;
 				if (item.IsLoaded)
 					return;
-				lock (item) {
-					if (item.IsLoaded)
-						return;
+				Monitor.Enter(item);
+				if (!item.IsLoaded)
 					item.Load(_state);
-				}
+				Monitor.Exit(item);
 			}
 			catch {
 			}

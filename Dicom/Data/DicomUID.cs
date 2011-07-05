@@ -57,7 +57,7 @@ namespace Dicom.Data {
 
 		private DicomUID() { }
 
-		internal DicomUID(string uid, string desc, DicomUidType type) {
+		public DicomUID(string uid, string desc, DicomUidType type) {
 			UID = uid;
 			Description = desc;
 			Type = type;
@@ -89,7 +89,8 @@ namespace Dicom.Data {
 						if (_instanceRootUid == null) {
 							NetworkInterface[] interfaces = NetworkInterface.GetAllNetworkInterfaces();
 							for (int i = 0; i < interfaces.Length; i++) {
-								if (NetworkInterface.LoopbackInterfaceIndex != i && interfaces[i].OperationalStatus == OperationalStatus.Up) {
+								if (NetworkInterface.LoopbackInterfaceIndex != i && (interfaces[i].OperationalStatus == OperationalStatus.Up || 
+								                                                     interfaces[i].NetworkInterfaceType == NetworkInterfaceType.Ethernet)) {
 									string hex = interfaces[i].GetPhysicalAddress().ToString();
 									if (!String.IsNullOrEmpty(hex)) {
 										try {
@@ -100,7 +101,7 @@ namespace Dicom.Data {
 									}
 								}
 							}
-							_instanceRootUid = Generate(Implementation.ClassUID, Environment.TickCount);
+							_instanceRootUid = Generate(Implementation.ClassUID, Math.Abs(Environment.TickCount));
 						}
 					}
 				}
@@ -1162,7 +1163,7 @@ namespace Dicom.Data {
 
 		/// <summary>SOP Class: Ophthalmic Tomography Image Storage [PS 3.4]</summary>
 		public static DicomUID OphthalmicTomographyImageStorage = new DicomUID("1.2.840.10008.5.1.4.1.1.77.1.5.4", "Ophthalmic Tomography Image Storage", DicomUidType.SOPClass);
-
+	
 		/// <summary>SOP Class: VL Multi-frame Image Storage – Trial [PS 3.4] (Retired)</summary>
 		public static DicomUID VLMultiframeImageStorageTrialRETIRED = new DicomUID("1.2.840.10008.5.1.4.1.1.77.2", "VL Multi-frame Image Storage – Trial", DicomUidType.SOPClass);
 

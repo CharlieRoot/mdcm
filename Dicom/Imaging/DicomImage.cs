@@ -23,7 +23,10 @@ namespace Dicom.Imaging {
 		/// <summary>Creates DICOM image object from dataset</summary>
 		/// <param name="dataset">Source dataset</param>
 		public DicomImage(DcmDataset dataset) {
-			Load(dataset);
+			Load(dataset, 0);
+		}
+		public DicomImage(DcmDataset dataset, int frame) {
+			Load(dataset, frame);
 		}
 
 		/// <summary>Creates DICOM image object from file</summary>
@@ -31,7 +34,7 @@ namespace Dicom.Imaging {
 		public DicomImage(string fileName) {
 			DicomFileFormat ff = new DicomFileFormat();
 			ff.Load(fileName, DicomReadOptions.Default);
-			Load(ff.Dataset);
+			Load(ff.Dataset, 0);
 		}
 
 		/// <summary>Source DICOM dataset</summary>
@@ -57,12 +60,12 @@ namespace Dicom.Imaging {
 			return graphic.RenderImage(_pipeline.LUT);
 		}
 
-		private void Load(DcmDataset dataset) {
+		private void Load(DcmDataset dataset, int frame) {
 			Dataset = dataset;
 			if (Dataset.InternalTransferSyntax.IsEncapsulated)
 				Dataset.ChangeTransferSyntax(DicomTransferSyntax.ExplicitVRLittleEndian, null);
 			DcmPixelData pixelData = new DcmPixelData(Dataset);
-			_pixelData = PixelDataFactory.Create(pixelData, 0);
+			_pixelData = PixelDataFactory.Create(pixelData, frame);
 			_pipeline = PipelineFactory.Create(Dataset, pixelData);
 			pixelData.Unload();
 		}

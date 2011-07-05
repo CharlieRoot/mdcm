@@ -3,6 +3,9 @@
 *.opensdf
 *.user
 *.VisualState.xml
+*.userprefs
+*.pidb
+*.resources
 obj/
 bin/
 Debug/

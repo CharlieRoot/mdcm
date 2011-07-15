@@ -91,8 +91,15 @@ namespace Dicom.Imaging {
 				for (int i = 0; i < wc.Length; i++) {
 					double window;
 					double level;
-					if (!Double.TryParse(ww[i], out window) || !Double.TryParse(wc[i], out level))
-						throw new DicomImagingException("Unable to parse Window/Level [wc: {0}; ww: {1}]", wc[i], ww[i]);
+					if (!Double.TryParse(ww[i], out window) &&
+					    !Double.TryParse(ww[i], System.Globalization.NumberStyles.Float,
+					                     System.Globalization.CultureInfo.InvariantCulture, out window))
+						throw new DicomImagingException("Unable to parse Window/Level [ww: {0}]", ww[i]);
+
+					if (!Double.TryParse(wc[i], out level) &&
+					    !Double.TryParse(wc[i], System.Globalization.NumberStyles.Float, 
+					                     System.Globalization.CultureInfo.InvariantCulture, out level))
+						throw new DicomImagingException("Unable to parse Window/Level [wc: {0}]", wc[i]);
 
 					string description = String.Empty;
 					if (desc != null && i < desc.Length)
